@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mod id="4789cef3-41dc-4095-913c-b10d4952010d" version="8.1">
+  <Properties>
+    <Name>Pangea StratBal++</Name>
+    <Teaser>Pangaea map script that guarantees Coal and Aluminum per player, with strategic balance.</Teaser>
+    <Description>Pangaea map script that guarantees Coal and Aluminum per player, with strategic balance. Originally created by Fish; packaged and distributed here for the Democraciv community.</Description>
+    <Authors>Fish</Authors>
+    <HideSetupGame>0</HideSetupGame>
+    <AffectsSavedGames>1</AffectsSavedGames>
+    <MinCompatibleSaveVersion>0</MinCompatibleSaveVersion>
+    <SupportsSinglePlayer>1</SupportsSinglePlayer>
+    <SupportsMultiplayer>1</SupportsMultiplayer>
+    <SupportsHotSeat>1</SupportsHotSeat>
+    <SupportsMac>1</SupportsMac>
+    <ReloadAudioSystem>0</ReloadAudioSystem>
+    <ReloadLandmarkSystem>0</ReloadLandmarkSystem>
+    <ReloadStrategicViewSystem>0</ReloadStrategicViewSystem>
+    <ReloadUnitSystem>0</ReloadUnitSystem>
+  </Properties>
+  <Dependencies />
+  <References />
+  <Blocks />
+  <Files>
+    <File md5="d02796be4c1bfd7bc8cfb1e116d783a7" import="1">VAssignStartingPlots.lua</File>
+    <File md5="120aed80a2e5b1e9d7ea51ddb82dd1d2" import="1">VFeatureGenerator.lua</File>
+    <File md5="5bfd1c58544451e3a2b278cb85096f2e" import="1">VFractalWorld.lua</File>
+    <File md5="3a94a5cf422ea987f968c1314088baec" import="1">VMapGenerator.lua</File>
+    <File md5="af997e7eea6f0bf723b11360f4e9b69d" import="1">VMapmakerUtilities.lua</File>
+    <File md5="824e1739875880e195d4721c4ef15c6b" import="1">VanillaPangaea.lua</File>
+    <File md5="2f1d9c81c57f93f00f60cec975ed4ff0" import="1">VTerrainGenerator.lua</File>
+  </Files>
+  <EntryPoints>
+    <EntryPoint type="MapScript" file="VanillaPangaea.lua">
+      <Name>Pangea StratBal++</Name>
+      <Description>Pangaea map script that guarantees Coal and Aluminum per player, with strategic balance.</Description>
+    </EntryPoint>
+  </EntryPoints>
+</Mod>
