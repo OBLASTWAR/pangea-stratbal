@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Mod id="4789cef3-41dc-4095-913c-b10d4952010d" version="8.1">
   <Properties>
-    <Name>Pangea StratBal++</Name>
-    <Teaser>Pangaea map script that guarantees Coal and Aluminum per player, with strategic balance.</Teaser>
-    <Description>Pangaea map script that guarantees Coal and Aluminum per player, with strategic balance. Originally created by Fish; packaged and distributed here for the Democraciv community.</Description>
+    <Name>Vanilla Pangaea Map Script</Name>
+    <Teaser>A map script gurantees coal and aluminum with strategic balance.</Teaser>
+    <Description>A map script gurantees coal and aluminum with strategic balance.</Description>
     <Authors>Fish</Authors>
     <HideSetupGame>0</HideSetupGame>
     <AffectsSavedGames>1</AffectsSavedGames>
@@ -31,8 +31,8 @@
   </Files>
   <EntryPoints>
     <EntryPoint type="MapScript" file="VanillaPangaea.lua">
-      <Name>Pangea StratBal++</Name>
-      <Description>Pangaea map script that guarantees Coal and Aluminum per player, with strategic balance.</Description>
+      <Name>HellBlazers Map Script</Name>
+      <Description>A map script containing different map types selectable from the map set up screen.</Description>
     </EntryPoint>
   </EntryPoints>
 </Mod>
