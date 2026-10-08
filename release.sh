@@ -10,9 +10,14 @@
 #                                     zip already published)
 #
 # What players get, and what kek-mod's installer relies on:
-#   * FishMapScript.zip, the release's only asset, holding a single folder
+#   * FishMapScript-v<version>.zip, the release's ONLY asset (installers
+#     take the first asset whatever its name), holding a single folder
 #     "Fish Map Script/" with the .lua files and the .modinfo -- unzipped
-#     straight into Assets/Maps.
+#     straight into Assets/Maps. The folder name must stay exactly that:
+#     every kek-mod installer ever shipped checks for "Fish Map Script" to
+#     decide whether the map is installed, so a versioned folder name would
+#     get old installers adding a second copy next to the first. The
+#     version shows in the zip's name (and the .modinfo's) instead.
 #   * The installer reads the installed version off the .modinfo's file name
 #     ("VFishMapScriptv1.1.modinfo" -> v1.1) and compares it with the
 #     release tag, so the two MUST match or players see UPDATE forever. A new
@@ -49,8 +54,9 @@ VER="${VER#v}"; VER="${VER#V}"
 TAG="v$VER"
 REPO="OBLASTWAR/pangea-stratbal"
 BRANCH="master"
-ASSET="FishMapScript.zip"
+ASSET="FishMapScript-v$VER.zip"
 MODINFO_NEW="VFishMapScriptv$VER.modinfo"
+FOLDER="Fish Map Script"
 
 die() { echo "ERROR: $*" >&2; exit 1; }
 step() { echo "==> $*"; }
@@ -85,7 +91,7 @@ trap 'rm -rf "$WORK"' EXIT
 # new versions only -- a rebuild must reproduce the old files exactly).
 cat > "$WORK/pack.py" <<'PY'
 import hashlib, re, subprocess, sys, zipfile
-out, refresh = sys.argv[1], sys.argv[2] == "1"
+out, refresh, folder = sys.argv[1], sys.argv[2] == "1", sys.argv[3]
 names = [n for n in subprocess.check_output(["git", "ls-files"], text=True).splitlines()
          if n.lower().endswith((".lua", ".modinfo")) and "/" not in n]
 def crlf(b):
@@ -105,12 +111,12 @@ if refresh:
             open(n, "wb").write(data[n].replace(b"\r\n", b"\n"))  # repo copy stays LF
 with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
     for n in sorted(names, key=str.lower):
-        z.writestr(zipfile.ZipInfo("Fish Map Script/" + n, (2026, 1, 1, 0, 0, 0)), data[n], zipfile.ZIP_DEFLATED)
-print("\n".join("    %8d  Fish Map Script/%s" % (len(data[n]), n) for n in sorted(names, key=str.lower)))
+        z.writestr(zipfile.ZipInfo(folder + "/" + n, (2026, 1, 1, 0, 0, 0)), data[n], zipfile.ZIP_DEFLATED)
+print("\n".join("    %8d  %s/%s" % (len(data[n]), folder, n) for n in sorted(names, key=str.lower)))
 PY
 
-# Compares the files inside two zips by name (ignoring folder separators)
-# and contents.
+# Compares the files inside two zips by file name and contents, ignoring
+# "\" vs "/" separators.
 cat > "$WORK/same.py" <<'PY'
 import sys, zipfile
 def files(p):
@@ -125,9 +131,11 @@ PY
 
 if [ "$REBUILD" = 1 ]; then
     step "Building $ASSET for $TAG from HEAD ($(git rev-parse --short HEAD))"
-    python3 -I "$WORK/pack.py" "$WORK/$ASSET" 0
-    step "Comparing with the $ASSET published on $TAG"
-    gh release download "$TAG" -R "$REPO" -p "$ASSET" -O "$WORK/published.zip"
+    python3 -I "$WORK/pack.py" "$WORK/$ASSET" 0 "$FOLDER"
+    step "Comparing with the zip published on $TAG"
+    OLD_ASSETS="$(gh release view "$TAG" -R "$REPO" --json assets --jq '.assets[].name')"
+    [ "$(echo "$OLD_ASSETS" | grep -c .)" = 1 ] || die "$TAG should have exactly one asset, has: $OLD_ASSETS"
+    gh release download "$TAG" -R "$REPO" -p "$OLD_ASSETS" -O "$WORK/published.zip"
     python3 -I "$WORK/same.py" "$WORK/$ASSET" "$WORK/published.zip" \
         || die "HEAD's files differ from $TAG's published zip. Release them as a new version instead."
     echo "    identical."
@@ -135,8 +143,11 @@ if [ "$REBUILD" = 1 ]; then
     step "Moving tag $TAG to HEAD"
     git tag -f -a "$TAG" -m "$TAG" HEAD
     git push -f origin "refs/tags/$TAG"
-    step "Replacing $ASSET on the $TAG release"
+    step "Replacing $OLD_ASSETS with $ASSET on the $TAG release"
     gh release upload "$TAG" "$WORK/$ASSET" -R "$REPO" --clobber
+    # Installers take the first asset, so never leave two -- both are the
+    # same files anyway, so the moment with two is harmless.
+    [ "$OLD_ASSETS" = "$ASSET" ] || gh release delete-asset "$TAG" "$OLD_ASSETS" -R "$REPO" -y
     step "Done: https://github.com/$REPO/releases/tag/$TAG"
     exit 0
 fi
@@ -144,7 +155,7 @@ fi
 # ── New version ──────────────────────────────────────────────────────────────
 if [ "$DRY" = 1 ]; then
     step "Dry run: building $ASSET as it is now (no rename/md5 refresh)"
-    python3 -I "$WORK/pack.py" "$WORK/$ASSET" 0
+    python3 -I "$WORK/pack.py" "$WORK/$ASSET" 0 "$FOLDER"
     step "Dry run -- stopping here."
     exit 0
 fi
@@ -154,7 +165,7 @@ if [ "$MODINFO_CUR" != "$MODINFO_NEW" ]; then
     git mv "$MODINFO_CUR" "$MODINFO_NEW"
 fi
 step "Building $ASSET (refreshing the .modinfo md5s)"
-python3 -I "$WORK/pack.py" "$WORK/$ASSET" 1
+python3 -I "$WORK/pack.py" "$WORK/$ASSET" 1 "$FOLDER"
 git add -A -- '*.modinfo'
 if ! git diff --cached --quiet; then
     step "Committing"

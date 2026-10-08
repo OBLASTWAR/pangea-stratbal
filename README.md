@@ -9,16 +9,16 @@ if a player doesn't already have it.
 
 ## Manual install
 
-Drop the contents of this repo into:
-
-```
-Sid Meier's Civilization V/Assets/Maps/Fish Map Script/
-```
+Download `FishMapScript-v<version>.zip` from the latest
+[release](https://github.com/OBLASTWAR/pangea-stratbal/releases/latest) and
+unzip it into `Sid Meier's Civilization V/Assets/Maps/`, replacing any older
+`Fish Map Script` folder. The version you have is in the name of the
+`.modinfo` file inside (`VFishMapScriptv1.0.modinfo` = v1.0).
 
 ## Releasing
 
 ```
-./release.sh 1.1            # new version: renames the .modinfo, tags, publishes FishMapScript.zip
+./release.sh 1.1            # new version: renames the .modinfo, tags, publishes FishMapScript-v1.1.zip
 ./release.sh 1.1 --dry-run  # build and check only
 ./release.sh --rebuild 1.0  # re-publish an existing version (only if the files are unchanged)
 ```
